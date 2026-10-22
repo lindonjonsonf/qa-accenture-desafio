@@ -1,11 +1,7 @@
+import servicoUsuario from '../../servicos/usuario.servico';
+import servicoLivros from '../../servicos/livros.servico';
 
 describe('Desafio Accenture - API da Livraria', () => {
-
-  const enderecoBase = 'https://demoqa.com';
-
-  let identificadorUsuario;
-  let tokenAcesso;
-  let livrosSelecionados = [];
 
   it('Deve executar o fluxo completo de cadastro e reserva de livros', () => {
 
@@ -14,12 +10,12 @@ describe('Desafio Accenture - API da Livraria', () => {
       password: 'Teste@12345Aa'
     };
 
-    // ETAPA 1 - cadastro de usuario
-    cy.request({
-      method: 'POST',
-      url: `${enderecoBase}/Account/v1/User`,
-      body: usuario
-    }).then((resposta) => {
+    let identificadorUsuario;
+    let tokenAcesso;
+    let livrosSelecionados = [];
+
+    // ETAPA 1 - Cadastrar usuário
+    servicoUsuario.cadastrarUsuario(usuario).then((resposta) => {
 
       expect(resposta.status).to.eq(201);
       expect(resposta.body).to.have.property('userID');
@@ -27,15 +23,11 @@ describe('Desafio Accenture - API da Livraria', () => {
 
       identificadorUsuario = resposta.body.userID;
 
-      cy.log('ETAPA 1 - usuario cadastrado com sucesso!');
+      cy.log('ETAPA 1 - Usuário cadastrado com sucesso!');
     });
 
-    // ETAPA 2 - Gerar token de acesso
-    cy.request({
-      method: 'POST',
-      url: `${enderecoBase}/Account/v1/GenerateToken`,
-      body: usuario
-    }).then((resposta) => {
+    // ETAPA 2 - Gerar token
+    servicoUsuario.gerarToken(usuario).then((resposta) => {
 
       expect(resposta.status).to.eq(200);
       expect(resposta.body).to.have.property('token');
@@ -44,27 +36,20 @@ describe('Desafio Accenture - API da Livraria', () => {
 
       tokenAcesso = resposta.body.token;
 
-      cy.log('ETAPA 2 - token gerado com sucesso!');
-    })
+      cy.log('ETAPA 2 - Token gerado com sucesso!');
+    });
 
     // ETAPA 3 - Confirmar autorização
-    cy.request({
-      method: 'POST',
-      url: `${enderecoBase}/Account/v1/Authorized`,
-      body: usuario
-    }).then((resposta) => {
+    servicoUsuario.verificarAutorizacao(usuario).then((resposta) => {
 
       expect(resposta.status).to.eq(200);
       expect(resposta.body).to.eq(true);
 
-      cy.log('ETAPA 3 - usuario autorizado com sucesso!');
+      cy.log('ETAPA 3 - Usuário autorizado com sucesso!');
     });
 
-    // ETAPA 4 - Consultar livros disponíveis
-    cy.request({
-      method: 'GET',
-      url: `${enderecoBase}/BookStore/v1/Books`
-    }).then((resposta) => {
+    // ETAPA 4 - Consultar livros
+    servicoLivros.consultarLivros().then((resposta) => {
 
       expect(resposta.status).to.eq(200);
       expect(resposta.body).to.have.property('books');
@@ -81,22 +66,14 @@ describe('Desafio Accenture - API da Livraria', () => {
       cy.log('ETAPA 4 - Livros consultados com sucesso!');
     });
 
-    // ETAPA 5 - reservar dois livros
+    // ETAPA 5 - Reservar dois livros
     cy.then(() => {
 
-      return cy.request({
-        method: 'POST',
-        url: `${enderecoBase}/BookStore/v1/Books`,
-        headers: {
-          Authorization: `Bearer ${tokenAcesso}`
-        },
-        body: {
-          userId: identificadorUsuario,
-          collectionOfIsbns: livrosSelecionados.map((livro) => ({
-            isbn: livro.isbn
-          }))
-        }
-      });
+      return servicoLivros.reservarLivros(
+        identificadorUsuario,
+        tokenAcesso,
+        livrosSelecionados
+      );
 
     }).then((resposta) => {
 
@@ -115,16 +92,13 @@ describe('Desafio Accenture - API da Livraria', () => {
       cy.log('ETAPA 5 - Dois livros reservados com sucesso!');
     });
 
-    // ETAPA 6 - consultar usuario e validar os livros
+    // ETAPA 6 - Consultar usuário e validar livros
     cy.then(() => {
 
-      return cy.request({
-        method: 'GET',
-        url: `${enderecoBase}/Account/v1/User/${identificadorUsuario}`,
-        headers: {
-          Authorization: `Bearer ${tokenAcesso}`
-        }
-      });
+      return servicoUsuario.consultarUsuario(
+        identificadorUsuario,
+        tokenAcesso
+      );
 
     }).then((resposta) => {
 
@@ -144,7 +118,7 @@ describe('Desafio Accenture - API da Livraria', () => {
       });
 
       cy.log('ETAPA 6 - Os dois livros foram encontrados na conta!');
-      cy.log('DESAFIO DE API CONCLUÍDO COM SUCESSO!');
+      cy.log('FLUXO COMPLETO DA API VALIDADO COM SUCESSO!');
 
     });
 
