@@ -23,7 +23,6 @@ describe('Desafio Accenture - API da Livraria', () => {
 
       identificadorUsuario = resposta.body.userID;
 
-      cy.log('ETAPA 1 - Usuário cadastrado com sucesso!');
     });
 
     // ETAPA 2 - Gerar token
@@ -36,7 +35,6 @@ describe('Desafio Accenture - API da Livraria', () => {
 
       tokenAcesso = resposta.body.token;
 
-      cy.log('ETAPA 2 - Token gerado com sucesso!');
     });
 
     // ETAPA 3 - Confirmar autorização
@@ -45,7 +43,6 @@ describe('Desafio Accenture - API da Livraria', () => {
       expect(resposta.status).to.eq(200);
       expect(resposta.body).to.eq(true);
 
-      cy.log('ETAPA 3 - Usuário autorizado com sucesso!');
     });
 
     // ETAPA 4 - Consultar livros
@@ -60,10 +57,8 @@ describe('Desafio Accenture - API da Livraria', () => {
 
       livrosSelecionados.forEach((livro) => {
         expect(livro.isbn).to.be.a('string').and.not.be.empty;
-        cy.log(`Livro selecionado: ${livro.title}`);
       });
 
-      cy.log('ETAPA 4 - Livros consultados com sucesso!');
     });
 
     // ETAPA 5 - Reservar dois livros
@@ -89,7 +84,6 @@ describe('Desafio Accenture - API da Livraria', () => {
         expect(identificadoresReservados).to.include(livro.isbn);
       });
 
-      cy.log('ETAPA 5 - Dois livros reservados com sucesso!');
     });
 
     // ETAPA 6 - Consultar usuário e validar livros
@@ -117,8 +111,6 @@ describe('Desafio Accenture - API da Livraria', () => {
         expect(identificadoresEncontrados).to.include(livro.isbn);
       });
 
-      cy.log('ETAPA 6 - Os dois livros foram encontrados na conta!');
-      cy.log('FLUXO COMPLETO DA API VALIDADO COM SUCESSO!');
 
     });
 

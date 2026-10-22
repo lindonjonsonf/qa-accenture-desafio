@@ -1,7 +1,9 @@
+import paginaInicial from './inicio.pagina';
+
 class PaginaJanelas {
 
   acessarPagina() {
-    cy.visit('https://demoqa.com/browser-windows');
+    paginaInicial.acessarSubpagina('Alerts, Frame & Windows', 'Browser Windows');
     cy.get('#windowButton').should('be.visible');
   }
 
@@ -26,6 +28,9 @@ class PaginaJanelas {
 
     cy.contains('h1', 'This is a sample page')
       .should('be.visible');
+
+    cy.go('back');
+    cy.get('#windowButton').should('be.visible');
   }
 }
 

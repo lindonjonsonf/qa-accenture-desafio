@@ -1,7 +1,10 @@
+import paginaInicial from './inicio.pagina';
+
 class PaginaBarraProgresso {
 
   acessarPagina() {
-    cy.visit('https://demoqa.com/progress-bar');
+    paginaInicial.acessarSubpagina('Widgets', 'Progress Bar');
+    cy.get('#startStopButton').should('be.visible');
   }
 
   iniciar() {

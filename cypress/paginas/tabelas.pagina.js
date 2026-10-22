@@ -1,7 +1,9 @@
+import paginaInicial from './inicio.pagina';
+
 class PaginaTabelas {
 
   acessarPagina() {
-    cy.visit('https://demoqa.com/webtables');
+    paginaInicial.acessarSubpagina('Elements', 'Web Tables');
     cy.get('#addNewRecordButton').should('be.visible');
   }
 
